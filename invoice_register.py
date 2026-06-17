@@ -15,10 +15,10 @@ from openpyxl.utils import get_column_letter
 
 
 BASE_DIR = Path(__file__).resolve().parent
-INPUT_DIR = BASE_DIR / "待识别发票"
-ARCHIVE_DIR = BASE_DIR / "已归档发票"
-FAILED_DIR = BASE_DIR / "识别失败发票"
-LEDGER_PATH = BASE_DIR / "发票台账.xlsx"
+INPUT_DIR = BASE_DIR / "invoices_to_process"
+ARCHIVE_DIR = BASE_DIR / "archived_invoices"
+FAILED_DIR = BASE_DIR / "failed_invoices"
+LEDGER_PATH = BASE_DIR / "invoice_ledger.xlsx"
 
 HEADERS = [
     "发票号码",
@@ -388,7 +388,7 @@ def ensure_workbook(path: Path):
 
     workbook = Workbook()
     sheet = workbook.active
-    sheet.title = "发票台账"
+    sheet.title = "Invoice Ledger"
     sheet.append(HEADERS)
     style_header(sheet)
     set_column_widths(sheet)
