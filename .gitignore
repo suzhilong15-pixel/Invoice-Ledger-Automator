@@ -1,0 +1,36 @@
+# Local operating system files
+.DS_Store
+Thumbs.db
+
+# Python caches and local tooling
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local Conda environment
+.conda/
+.venv/
+venv/
+env/
+
+# Confidential invoice data and generated ledgers
+*.pdf
+*.PDF
+*.xlsx
+*.xls
+*.csv
+
+# Keep the workflow folders, but never commit their contents.
+待识别发票/*
+已归档发票/*
+识别失败发票/*
+!待识别发票/.gitkeep
+!已归档发票/.gitkeep
+!识别失败发票/.gitkeep
+
+# Logs and temporary files
+*.log
+*.tmp
+~$*
