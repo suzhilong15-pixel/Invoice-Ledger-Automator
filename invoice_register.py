@@ -463,6 +463,25 @@ def deduplicate_sheet(sheet) -> None:
         sheet.append(row)
 
 
+def row_should_be_removed(row_values: list) -> bool:
+    status = str(row_values[9]).strip() if len(row_values) > 9 and row_values[9] is not None else ""
+    failed_reason = str(row_values[10]).strip() if len(row_values) > 10 and row_values[10] is not None else ""
+    return status == "失败" and "发票号码识别失败" in failed_reason
+
+
+def remove_failed_rows_without_invoice_number(sheet) -> int:
+    if sheet.max_row <= 1:
+        return 0
+
+    removed_count = 0
+    for row_idx in range(sheet.max_row, 1, -1):
+        row_values = [cell.value for cell in sheet[row_idx]]
+        if row_should_be_removed(row_values):
+            sheet.delete_rows(row_idx, 1)
+            removed_count += 1
+    return removed_count
+
+
 def style_data_rows(sheet) -> None:
     for row in sheet.iter_rows(min_row=2):
         for cell in row:
@@ -471,7 +490,9 @@ def style_data_rows(sheet) -> None:
 
 def append_record(record: InvoiceRecord, ledger_path: Path) -> None:
     workbook, sheet = ensure_workbook(ledger_path)
+    remove_failed_rows_without_invoice_number(sheet)
     sheet.append(record.as_row())
+    remove_failed_rows_without_invoice_number(sheet)
     deduplicate_sheet(sheet)
     style_data_rows(sheet)
     workbook.save(ledger_path)

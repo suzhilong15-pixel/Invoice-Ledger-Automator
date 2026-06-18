@@ -6,6 +6,19 @@ Invoice Ledger Automator is a Python tool for extracting structured data from te
 
 The tool is designed for PDF invoices whose text can be selected and copied. Scanned or image-based PDFs require OCR, which is not included in this version.
 
+For a detailed breakdown of the project structure, execution flow, and maintenance guidance, see [STRUCTURE_LOGIC_AND_MAINTENANCE_GUIDE.md](STRUCTURE_LOGIC_AND_MAINTENANCE_GUIDE.md).
+
+### Key Features
+
+- Extracts invoice number, invoice date, buyer name, seller name, total amount, USD amount, exchange rate, and bill of lading number.
+- Appends new records to `invoice_ledger.xlsx` without overwriting existing data.
+- Moves successfully processed PDFs to `archived_invoices/`.
+- Moves failed PDFs to `failed_invoices/` with failure reasons recorded in the ledger.
+- Extracts `USD`, `汇率`, and `提单号` only from the invoice remarks area to avoid false matches from bank account information.
+- Deduplicates records by invoice number and keeps the more complete result.
+- Automatically removes failed ledger rows when the invoice number could not be extracted.
+- Provides a dedicated maintenance guide for future rule updates and troubleshooting.
+
 ### Project Structure
 
 ```text
@@ -15,6 +28,8 @@ failed_invoices/      Failed invoices are moved here for review
 invoice_ledger.xlsx   Generated Excel ledger
 invoice_register.py   Main script
 environment.yml       Conda environment configuration
+STRUCTURE_LOGIC_AND_MAINTENANCE_GUIDE.md
+                      Structure, logic, and maintenance guide
 ```
 
 ### Ledger Fields
@@ -72,6 +87,8 @@ The retained record is selected by these rules:
 - Prefer records with `成功` status.
 - If the status is the same, keep the record with more complete extracted fields.
 
+Failed ledger rows are also cleaned automatically. If a row has `识别状态` set to `失败` and its `失败原因` contains `发票号码识别失败`, that entire row is removed during the next script run because it cannot be matched or deduplicated by invoice number.
+
 ### Supported Keyword Formats
 
 The script supports spaces, colons, Chinese colons, commas, and Chinese commas between keywords and values:
@@ -124,6 +141,19 @@ Invoice Ledger Automator 是一个基于 Python 的发票台账自动化工具�
 
 本工具适用于文字可以被选中和复制的 PDF 发票。扫描件或图片版 PDF 需要 OCR，本版本暂未包含 OCR 功能。
 
+如果需要了解项目结构、运行流程和后期维护方法，请阅读 [STRUCTURE_LOGIC_AND_MAINTENANCE_GUIDE.md](STRUCTURE_LOGIC_AND_MAINTENANCE_GUIDE.md)。
+
+### 核心功能
+
+- 自动提取发票号码、开票日期、购买方名称、销售方名称、价税合计、美金金额、汇率和提单号。
+- 将新识别结果追加写入 `invoice_ledger.xlsx`，不会覆盖旧数据。
+- 识别成功的 PDF 自动移动到 `archived_invoices/`。
+- 识别失败的 PDF 自动移动到 `failed_invoices/`，并在台账中记录失败原因。
+- `USD`、`汇率`、`提单号` 只在发票备注区域识别，避免把银行账号等位置的 `USD` 误判为美金金额。
+- 按发票号码自动去重，并保留字段更完整的识别结果。
+- 如果失败记录中包含 `发票号码识别失败`，下次运行时会自动删除该台账行。
+- 提供专门的维护指南，方便后续优化识别规则和排查问题。
+
 ### 项目结构
 
 ```text
@@ -133,6 +163,8 @@ failed_invoices/      识别失败的发票会自动移动到这里，方便人�
 invoice_ledger.xlsx   自动生成和追加更新的 Excel 台账
 invoice_register.py   主程序
 environment.yml       Conda 环境配置
+STRUCTURE_LOGIC_AND_MAINTENANCE_GUIDE.md
+                      项目结构、运行逻辑与后期维护指南
 ```
 
 ### 台账字段
@@ -189,6 +221,8 @@ environment.yml       Conda 环境配置
 
 - 优先保留识别状态为 `成功` 的记录。
 - 如果状态相同，保留字段识别更完整的记录。
+
+脚本还会自动清理失败台账行。如果某一行的 `识别状态` 是 `失败`，并且 `失败原因` 包含 `发票号码识别失败`，那么系统会在下一次运行时删除整行记录，因为这类记录没有发票号码，无法用于后续匹配和去重。
 
 ### 支持的关键词格式
 
